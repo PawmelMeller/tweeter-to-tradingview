@@ -1,0 +1,13 @@
+@echo off
+echo Starting Twitter Timeline Application...
+
+echo Starting backend server...
+start cmd /k "cd backend && npm start"
+
+echo Waiting for backend to start...
+timeout /t 3 /nobreak > nul
+
+echo Starting frontend application...
+npm start
+
+pause

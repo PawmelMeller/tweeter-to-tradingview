@@ -1,0 +1,158 @@
+<mat-toolbar color="primary">
+  <mat-icon>currency_bitcoin</mat-icon>
+  <span>Twitter to Bitcoin Chart</span>
+  <span class="toolbar-spacer"></span>
+  <mat-icon>timeline</mat-icon>
+</mat-toolbar>
+
+<div class="container">
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>search</mat-icon>
+        Fetch Tweets
+      </mat-card-title>
+      <mat-card-subtitle>Get real tweets from Twitter API and view Bitcoin price chart</mat-card-subtitle>
+    </mat-card-header>    <mat-card-content>
+      <form [formGroup]="twitterForm" (ngSubmit)="onSubmit()" class="twitter-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Popular Users</mat-label>
+            <mat-select [value]="twitterForm.get('username')?.value" 
+                       (selectionChange)="twitterForm.get('username')?.setValue($event.value)">
+              <mat-option *ngFor="let user of popularUsers" [value]="user.value">
+                {{ user.name }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>people</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Or enter custom username</mat-label>
+            <input 
+              matInput 
+              formControlName="username" 
+              placeholder="e.g. elonmusk, BillyM2k">
+            <mat-icon matSuffix>person</mat-icon>
+            <mat-error *ngIf="twitterForm.get('username')?.hasError('required')">
+              Username is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Number of Tweets</mat-label>            <input 
+              matInput 
+              type="number" 
+              formControlName="tweetCount" 
+              min="1" 
+              max="100"
+              placeholder="e.g. 20">
+            <mat-icon matSuffix>format_list_numbered</mat-icon>
+            <mat-error *ngIf="twitterForm.get('tweetCount')?.hasError('required')">
+              Tweet count is required
+            </mat-error>
+            <mat-error *ngIf="twitterForm.get('tweetCount')?.hasError('min')">
+              Minimum 1 tweet
+            </mat-error>
+            <mat-error *ngIf="twitterForm.get('tweetCount')?.hasError('max')">
+              Maximum 100 tweets
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button 
+        mat-raised-button 
+        color="primary" 
+        [disabled]="!twitterForm.valid || loading" 
+        (click)="onSubmit()">        <mat-icon>download</mat-icon>
+        {{ loading ? 'Loading...' : 'Get Tweets' }}
+      </button>
+      
+      <button 
+        mat-stroked-button 
+        color="accent" 
+        (click)="refreshChart()"
+        [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+        Refresh Bitcoin Chart
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- Loading indicator -->
+  <mat-card *ngIf="loading" class="status-card">
+    <mat-card-content>
+      <div class="loading-container">
+        <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
+        <p><strong>Fetching real tweets from Twitter API...</strong></p>
+        <p class="loading-details">This may take a few seconds. Make sure the backend is running on port 3002.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Error message -->
+  <mat-card *ngIf="error" class="error-card">
+    <mat-card-content>
+      <div class="error-container">
+        <mat-icon color="warn">error</mat-icon>
+        <div>
+          <strong>Error:</strong> {{ error }}
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>  <!-- Bitcoin Chart component - always visible -->
+  <mat-card class="chart-card" *ngIf="!loading">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>currency_bitcoin</mat-icon>
+        Bitcoin Price Chart (BTC/USD)
+      </mat-card-title>
+      <mat-card-subtitle>Live Bitcoin price data from CoinGecko API with tweet markers</mat-card-subtitle>
+    </mat-card-header>    <mat-card-content>
+      <!-- Bitcoin Chart component -->
+      <app-chart [tweets]="tweets"></app-chart>
+    </mat-card-content>
+  </mat-card><!-- Tweet list with Material Cards -->
+  <app-tweet-list [tweets]="tweets" [tweetResponse]="tweetResponse" [isMockData]="isMockData" *ngIf="tweets.length"></app-tweet-list>
+
+  <!-- Information card -->
+  <mat-card class="info-card" *ngIf="!tweets.length && !loading">
+    <mat-card-content>
+      <div class="info-container">
+        <mat-icon color="primary">info</mat-icon>
+        <div>
+          <h4>Witaj w aplikacji Twitter to Bitcoin Chart!</h4>
+          <p>Ta aplikacja:</p>
+          <ul>
+            <li>⚡ Ładuje aktualne ceny Bitcoin z API CoinGecko</li>
+            <li>🐦 Pobiera tweety z Twitter API</li>
+            <li>📊 Wyświetla wykres Bitcoin z markerami tweetów</li>
+            <li>📈 Umożliwia analizę korelacji między tweetami a ceną</li>
+          </ul>
+          <p>Wykres Bitcoin zostanie załadowany automatycznie. Aby dodać markery tweetów, wybierz użytkownika i pobierz tweety.</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Live Bitcoin Chart status -->
+  <mat-card class="bitcoin-status-card" *ngIf="!loading">
+    <mat-card-content>
+      <div class="bitcoin-status-container">
+        <mat-icon color="accent">currency_bitcoin</mat-icon>
+        <div>
+          <h4>Live Bitcoin Chart Active</h4>
+          <p>Wykres automatycznie aktualizuje cenę Bitcoin co 30 sekund z API CoinGecko</p>
+          <p><small>Pobierz tweety, aby zobaczyć markery na wykresie cenowym</small></p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
