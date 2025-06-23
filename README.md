@@ -1,199 +1,180 @@
-# Twitter to Bitcoin Chart
+# Tweeter to TradingView
 
-This application fetches Twitter timelines and displays them with real-time Bitcoin price charts for sentiment analysis.
+A real-time Bitcoin price chart application with Twitter sentiment overlay, built with Angular and TypeScript.
 
 ## Features
 
-- Real Twitter API integration
-- Live Bitcoin price data from CoinGecko API
-- Interactive Bitcoin price charts with tweet markers
-- Tweet timeline visualization
-- Sentiment correlation analysis between tweets and Bitcoin prices
-- Modern Angular frontend with Material Design
-- Secure backend proxy server
+🚀 **Real-time Bitcoin Price Chart**
+- 1-minute candlestick charts from Binance API
+- Live price updates every second
+- 14 days of historical data with multi-batch loading
+- Professional TradingView-style interface using lightweight-charts
+
+📊 **Advanced Chart Features**
+- Responsive design that adapts to screen size
+- Dark theme optimized for trading
+- Smooth incremental updates without full reloads
+- Error handling with automatic fallback mechanisms
+
+🐦 **Twitter Sentiment Integration**
+- Tweet markers overlaid on price chart
+- Color-coded by content type:
+  - 🔵 Blue: Text tweets
+  - 🔴 Red: Image tweets  
+  - 🟣 Purple: Video tweets
+- Mock Twitter API integration ready for real data
+
+⚡ **Performance Optimized**
+- Batched data loading to bypass API limits
+- Incremental chart updates
+- Minimal loading states
+- Smart caching and data management
+
+## Tech Stack
+
+- **Frontend**: Angular 18+ with standalone components
+- **Charts**: TradingView Lightweight Charts
+- **APIs**: Binance REST API, Twitter API (mock)
+- **Styling**: Custom CSS with dark theme
+- **Build**: Angular CLI with TypeScript
 
 ## How it works
 
-1. **Bitcoin Chart**: Automatically loads real-time Bitcoin price data (BTC/USD) from CoinGecko API
-2. **Tweet Integration**: Fetch tweets from any Twitter user and see them as markers on the Bitcoin chart
-3. **Correlation Analysis**: Analyze potential correlations between influential tweets and Bitcoin price movements
-4. **Interactive Visualization**: Hover over chart points to see Bitcoin prices and tweet information
+1. **Bitcoin Chart**: Automatically loads real-time Bitcoin price data (BTC/USD) from Binance API with 14 days of historical 1-minute candles
+2. **Tweet Integration**: Fetch tweets from mock API and see them as color-coded markers on the Bitcoin chart
+3. **Live Updates**: Price updates every second, candles every minute, full refresh every 30 minutes
+4. **Interactive Visualization**: Professional trading interface with crosshairs, price scales, and responsive design
 
 ## Setup Instructions
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- Twitter API credentials (Client ID and Secret)
+- Node.js (v18 or higher)
+- npm or yarn
 
 ### Installation
 
-1. **Install dependencies:**
+1. **Clone the repository:**
    ```bash
-   # Run the setup script
-   setup.bat
+   git clone https://github.com/PawmelMeller/tweeter-to-tradingview.git
+   cd tweeter-to-tradingview
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   # Install all dependencies
+   npm install
    
-   # Or manually:
    # Install backend dependencies
    cd backend
    npm install
-   
-   # Install frontend dependencies
    cd ..
-   npm install
    ```
-
-2. **Configure Twitter API credentials:**
-   - Edit `backend/.env` file
-   - Add your Twitter API credentials:
-     ```
-     TWITTER_CLIENT_ID=your_client_id_here
-     TWITTER_CLIENT_SECRET=your_client_secret_here
-     ```
 
 ### Running the Application
 
-**Option 1: Quick Start with Mock Data (Recommended)**
+**Option 1: Quick Start (Recommended)**
 ```bash
-# Windows
-start-mock.bat
-
-# Or manually
-npm run start:mock
-```
-
-**Option 2: With Real Twitter API**
-```bash
-# Windows  
-start-twitter.bat
-
-# Or manually
 npm start
+# This starts both frontend and backend
 ```
 
-**Option 3: Manual Backend/Frontend**
+**Option 2: Manual Backend/Frontend**
 ```bash
-# Terminal 1: Start backend server
+# Terminal 1: Start backend mock server
 cd backend
-npm start           # Twitter API mode
-# OR
-npm run start:mock  # Mock mode
+node mock-server.js
 
 # Terminal 2: Start frontend (in main directory)
-npm run frontend
+ng serve
 ```
 
 3. **Access the application:**
    - Frontend: http://localhost:4200
-   - Backend API: http://localhost:3001
+   - Backend Mock API: http://localhost:3000
 
 ## Usage
 
-1. Enter a Twitter username (e.g., "elonmusk")
-2. Select the number of tweets to fetch (1-100)
-3. Click "Load Tweets"
-4. View the timeline chart and tweet table
+1. The application automatically loads Bitcoin chart data from the last 14 days
+2. Live price updates every second in the top-right corner
+3. Tweet markers appear as colored dots on the chart timeline
+4. Use the refresh button to reload chart data
+5. Chart is fully interactive with crosshairs and zoom functionality
+
+## Architecture
+
+```
+src/
+├── app/
+│   ├── bitcoin-chart.component.ts    # Main chart component
+│   ├── services/                     # Data services  
+│   ├── types/                        # TypeScript interfaces
+│   └── utils/                        # Helper utilities
+├── backend/
+│   ├── mock-server.js               # Mock Twitter API
+│   └── mock-tweets.json             # Sample tweet data
+└── assets/                          # Static assets
+```
+
+## Configuration
+
+Key settings in `bitcoin-chart.component.ts`:
+
+```typescript
+// Historical data range (days)
+const daysBack = 14;
+
+// Update intervals
+const priceUpdateInterval = 1000;      // 1 second
+const candleUpdateInterval = 60000;    // 1 minute  
+const fullRefreshInterval = 1800000;   // 30 minutes
+```
 
 ## API Endpoints
 
-- `GET /api/users/by/username/{username}/tweets` - Get user tweets
-- `GET /health` - Backend health check
-
-## Security Notes
-
-- Twitter API credentials are stored securely in the backend
-- CORS is properly configured
-- No sensitive data exposed to the frontend
+- **Binance API**: 
+  - `GET /api/v3/ticker/price` - Real-time price data
+  - `GET /api/v3/klines` - Historical candle data
+- **Mock Twitter API**: 
+  - `GET /api/mock-tweets` - Sample tweet data with media classification
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **CORS Errors:**
-   - Make sure the backend server is running on port 3001
-   - Check proxy configuration in `proxy.conf.json`
+1. **Chart not loading:**
+   - Check browser console for API errors
+   - Verify internet connection for Binance API access
+   - Refresh the page to reload chart data
 
-2. **Twitter API Errors:**
-   - Verify your API credentials in `backend/.env`
-   - Check rate limits (300 requests per 15 minutes)
-   - Ensure the username exists and is public
+2. **Price updates stopped:**
+   - Green "LIVE" indicator shows connection status
+   - Red "OFFLINE" means API connectivity issues
+   - Chart automatically retries failed requests
 
-3. **Connection Issues:**
-   - Backend: Check if port 3001 is available
-   - Frontend: Check if port 4200 is available
+3. **Performance issues:**
+   - Large datasets (14 days = ~20k candles) may take time to load initially
+   - Incremental updates are optimized for smooth performance
+   - Use browser dev tools to monitor network requests
 
-### Rate Limits
+## Contributing
 
-Twitter API v2 rate limits:
-- User tweets: 300 requests per 15 minutes
-- Each request can fetch up to 100 tweets
-
-## Development
-
-### Project Structure
-
-```
-├── src/                    # Angular frontend
-│   ├── app/
-│   │   ├── app.component.*
-│   │   ├── chart.component.*
-│   │   └── twitter.service.*
-│   └── environments/
-├── backend/                # Node.js proxy server
-│   ├── server.js
-│   ├── package.json
-│   └── .env
-├── proxy.conf.json        # Angular proxy config
-└── README.md
-```
-
-### Adding Features
-
-- **New chart types:** Modify `chart.component.ts`
-- **Additional API endpoints:** Add routes to `backend/server.js`
-- **UI improvements:** Update `app.component.html` and styles
-
-## 🚀 Quick Start Options
-
-### Option 1: Mock Mode (Recommended for testing)
-```bash
-# Using npm script
-npm run start:mock
-
-# Or using batch file (Windows)
-start-mock.bat
-```
-**Features:**
-- ✅ No Twitter API keys required
-- ✅ Uses sample tweet data
-- ✅ Perfect for development and testing
-- ✅ Bitcoin chart works immediately
-
-### Option 2: Real Twitter API Mode
-```bash
-# Using npm script  
-npm start
-
-# Or using batch file (Windows)
-start-twitter.bat
-```
-**Requirements:**
-- 🔑 Valid Twitter API credentials in `backend/.env`
-- 🐦 Twitter API v2 access
-- 💰 May consume API quota
-
-### Option 3: Manual Start (Advanced)
-```bash
-# Start backend only (mock)
-npm run backend:mock
-
-# Start backend only (Twitter API)  
-npm run backend
-
-# Start frontend only
-npm run frontend
-```
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
 This project is for educational purposes.
+
+## Acknowledgments
+
+- [TradingView Lightweight Charts](https://github.com/tradingview/lightweight-charts) for the charting library
+- [Binance API](https://binance-docs.github.io/apidocs/) for cryptocurrency data
+- Angular team for the amazing framework
+
+---
+
+⭐ Star this repo if you find it useful!
