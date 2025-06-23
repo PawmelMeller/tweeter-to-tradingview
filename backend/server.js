@@ -386,12 +386,17 @@ app.get('/', (req, res) => {
         <strong>GET</strong> <code>/api/users/by/username/:username/tweets</code><br>
         Get tweets for a specific user (${mode})
     </div>
+    <div class="endpoint">
+        <strong>GET</strong> <code>/api/mock-tweets</code><br>
+        Get mock tweets data (for testing)
+    </div>
     
     <h3>🧪 Test Links:</h3>
     <ul>
         <li><a href="/health">Health Check</a></li>
         <li><a href="/api/users/by/username/elonmusk/tweets?max_results=5">Elon Musk Tweets (5)</a></li>
         <li><a href="/api/users/by/username/VitalikButerin/tweets?max_results=10">Vitalik Buterin Tweets (10)</a></li>
+        <li><a href="/api/mock-tweets">Mock Tweets Data</a></li>
     </ul>
     
     ${!hasTwitterCredentials ? `
@@ -431,3 +436,19 @@ try {
   console.error('Error loading mock tweets data:', error);
   MOCK_TWEETS_DATA = { data: [], includes: { users: [], media: [] }, meta: {} };
 }
+
+// Mock tweets endpoint
+app.get('/api/mock-tweets', (req, res) => {
+  console.log('📝 Serving mock tweets data');
+  
+  const mockResponse = {
+    ...MOCK_TWEETS_DATA,
+    meta: {
+      ...MOCK_TWEETS_DATA.meta,
+      mock_data: true,
+      reason: 'Mock data requested via /api/mock-tweets endpoint'
+    }
+  };
+  
+  res.json(mockResponse);
+});

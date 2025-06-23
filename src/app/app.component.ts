@@ -3,9 +3,11 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { CommonModule } from '@angular/common';
 import { TwitterService } from './twitter.service';
 import { ChartComponent } from './chart-simple.component';
+import { BitcoinChartComponent } from './bitcoin-chart.component';
 import { TweetListComponent } from './tweet-list.component';
+import { LoadingService } from './services/loading.service';
 import { environment } from '../environments/environment';
-import { from } from 'rxjs';
+import { from, Subscription } from 'rxjs';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -15,6 +17,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { POPULAR_USERS } from './types/twitter.types';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +27,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     CommonModule, 
     ReactiveFormsModule, 
     FormsModule, 
-    ChartComponent,
+    BitcoinChartComponent,
     TweetListComponent,
     MatCardModule,
     MatFormFieldModule,
@@ -43,38 +46,50 @@ export class AppComponent implements OnInit, OnDestroy {
   tweetResponse: any = null; // Store full API response
   error: string = '';
   loading: boolean = false;
+  chartLoading: boolean = false;
   isMockData: boolean = false; // Track if showing mock data
   
-  // Predefined popular users
-  popularUsers = [
-    { value: 'elonmusk', name: 'Elon Musk (@elonmusk)' },
-    { value: 'BillyM2k', name: 'Billy Markus (@BillyM2k)' },
-    { value: 'VitalikButerin', name: 'Vitalik Buterin (@VitalikButerin)' },
-    { value: 'naval', name: 'Naval (@naval)' },
-    { value: 'sundarpichai', name: 'Sundar Pichai (@sundarpichai)' }
-  ];
+  // Global loading state
+  globalLoading: boolean = false;
+  private loadingSubscription?: Subscription;
+  
+  // Use imported popular users from types
+  popularUsers = POPULAR_USERS;
 
   constructor(
     private fb: FormBuilder,
-    private twitterService: TwitterService
+    private twitterService: TwitterService,
+    private loadingService: LoadingService
   ) {
     this.twitterForm = this.fb.group({
       username: [environment.twitterApi.defaultUsername, Validators.required],
       tweetCount: [20, [Validators.required, Validators.min(1), Validators.max(100)]]
     });
   }
-  
   ngOnInit() {
+    // Subscribe to global loading state
+    this.loadingSubscription = this.loadingService.loading$.subscribe(
+      isLoading => this.globalLoading = isLoading
+    );
+    
     // Rate limit handling can be implemented when needed
-    // Currently the TwitterService doesn't expose rate limit status
+    // Currently the TwitterService doesn't export rate limit status
     console.log('App component initialized - Bitcoin chart will load automatically');
+    
+    // Load mock tweets on startup
+    this.getMockTweets();
   }
+  
   ngOnDestroy() {
-    // Cleanup if needed
+    // Cleanup subscriptions
+    if (this.loadingSubscription) {
+      this.loadingSubscription.unsubscribe();
+    }
   }  onSubmit() {
     if (this.twitterForm.valid) {
       const { username, tweetCount } = this.twitterForm.value;
       
+      this.loadingService.startLoading(); // Start global loading
       this.loading = true;
       this.error = '';
       this.tweets = [];
@@ -94,21 +109,48 @@ export class AppComponent implements OnInit, OnDestroy {
             
             // Use simplified tweet model - data array directly
             this.tweets = response.data || [];
+            this.loadingService.stopLoading(); // Stop global loading
             this.loading = false;
           },
           error: (error: any) => {
             this.error = error.error || error.message || 'Błąd podczas pobierania tweetów';
+            this.loadingService.stopLoading(); // Stop global loading on error
             this.loading = false;
             this.isMockData = false;
           }
         });
     }
+  }  getMockTweets() {
+    this.loadingService.startLoading(); // Start global loading
+    this.loading = true;
+    this.error = '';
+    this.tweets = [];
+    this.tweetResponse = null;
+    this.isMockData = true;
+
+    from(this.twitterService.getMockTweets())
+      .subscribe({
+        next: (response: any) => {
+          console.log('Mock tweets loaded:', response);
+          
+          // Store full response for includes data
+          this.tweetResponse = response;
+          
+          // Use simplified tweet model - data array directly
+          this.tweets = response.data || [];
+          this.loadingService.stopLoading(); // Stop global loading
+          this.loading = false;
+        },
+        error: (error: any) => {
+          this.error = error.error || error.message || 'Błąd podczas pobierania mock tweetów';
+          this.loadingService.stopLoading(); // Stop global loading on error
+          this.loading = false;
+          this.isMockData = false;
+        }
+      });
   }
 
-  refreshChart() {
-    console.log('Refreshing Bitcoin chart from app component');
-    // This could trigger a refresh in the chart component
-    // For now, just reload the page component
-    window.location.reload();
+  onChartLoadingChange(isLoading: boolean): void {
+    this.chartLoading = isLoading;
   }
 }

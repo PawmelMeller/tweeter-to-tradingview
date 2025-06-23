@@ -14,15 +14,26 @@
     "downlevelIteration": true,
     "experimentalDecorators": true,
     "moduleResolution": "node",
-    "importHelpers": true,
-    "target": "es2020",
-    "module": "es2020",
+    "importHelpers": true,    "target": "es2022",
+    "module": "es2022",
     "lib": [
-      "es2020",
+      "es2022",
       "dom"
     ],
+    "useDefineForClassFields": false,
     "strictNullChecks": false
   },
+  "files": [
+    "src/main.ts",
+    "src/polyfills.ts"
+  ],
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

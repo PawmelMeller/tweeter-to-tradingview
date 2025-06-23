@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { LoadingService } from './services/loading.service';
 
 interface SimplifiedTweet {
   author_id: string;
@@ -59,7 +61,7 @@ interface TweetResult {
   providedIn: 'root'
 })
 export class TwitterService {
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private loadingService: LoadingService) {
     console.log('TwitterService initialized');
   }
   
@@ -112,5 +114,21 @@ export class TwitterService {
         throw new Error(error.error?.error || error.message || 'Nieznany błąd podczas pobierania tweetów');
       }
     }
+  }
+  /**
+   * Get mock tweets for testing purposes
+   */
+  getMockTweets(): Observable<TwitterResponse> {
+    this.loadingService.startLoading(); // Start global loading
+    const url = `/api/mock-tweets`;
+    console.log('Fetching mock tweets from:', url);
+
+    return this.http.get<TwitterResponse>(url).pipe(
+      tap(() => this.loadingService.stopLoading()), // Stop on success
+      catchError(error => {
+        this.loadingService.stopLoading(); // Stop on error
+        return throwError(() => error);
+      })
+    );
   }
 }

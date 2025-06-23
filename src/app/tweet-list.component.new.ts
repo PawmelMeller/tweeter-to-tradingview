@@ -55,12 +55,49 @@ import { MatBadgeModule } from '@angular/material/badge';
         <mat-card-content class="tweet-content">
           <div class="tweet-text-container">
             <p class="tweet-text">{{ tweet.text }}</p>
-          </div>          <!-- Tweet type badge -->
+          </div>
+
+          <!-- Tweet type badge -->
           <div class="tweet-badges" *ngIf="getTweetType(tweet) !== 'text'">
             <mat-chip class="tweet-type-badge">
               <mat-icon>{{ getTweetTypeIcon(tweet) }}</mat-icon>
               {{ getTweetType(tweet) }}
             </mat-chip>
+          </div>
+
+          <!-- Engagement metrics with beautiful design -->
+          <div class="engagement-metrics" *ngIf="tweet.public_metrics">
+            <div class="metrics-grid">
+              <div class="metric-item likes" *ngIf="tweet.public_metrics.like_count">
+                <mat-icon>favorite</mat-icon>
+                <span class="metric-value">{{ formatNumber(tweet.public_metrics.like_count) }}</span>
+                <span class="metric-label">Likes</span>
+              </div>
+              
+              <div class="metric-item retweets" *ngIf="tweet.public_metrics.retweet_count">
+                <mat-icon>repeat</mat-icon>
+                <span class="metric-value">{{ formatNumber(tweet.public_metrics.retweet_count) }}</span>
+                <span class="metric-label">Retweets</span>
+              </div>
+              
+              <div class="metric-item replies" *ngIf="tweet.public_metrics.reply_count">
+                <mat-icon>chat_bubble_outline</mat-icon>
+                <span class="metric-value">{{ formatNumber(tweet.public_metrics.reply_count) }}</span>
+                <span class="metric-label">Replies</span>
+              </div>
+              
+              <div class="metric-item quotes" *ngIf="tweet.public_metrics.quote_count">
+                <mat-icon>format_quote</mat-icon>
+                <span class="metric-value">{{ formatNumber(tweet.public_metrics.quote_count) }}</span>
+                <span class="metric-label">Quotes</span>
+              </div>
+              
+              <div class="metric-item impressions" *ngIf="tweet.public_metrics.impression_count">
+                <mat-icon>visibility</mat-icon>
+                <span class="metric-value">{{ formatNumber(tweet.public_metrics.impression_count) }}</span>
+                <span class="metric-label">Views</span>
+              </div>
+            </div>
           </div>
         </mat-card-content>
 
@@ -92,20 +129,19 @@ import { MatBadgeModule } from '@angular/material/badge';
         </mat-card>
       </div>
     </div>
-  `,  styles: [`
+  `,
+  styles: [`
     .tweets-container {
       max-width: 900px;
       margin: 0 auto;
       padding: 20px;
-      background-color: #1a1a1a;
-      color: #ffffff;
     }
 
     /* Beautiful header */
     .tweets-header {
       margin-bottom: 24px;
       padding: 20px 0;
-      border-bottom: 2px solid #333333;
+      border-bottom: 2px solid #e0e0e0;
     }
 
     .header-content {
@@ -118,28 +154,28 @@ import { MatBadgeModule } from '@angular/material/badge';
       font-size: 32px;
       width: 32px;
       height: 32px;
-      color: #ff9800;
+      color: #1976d2;
     }
 
     .header-text h2 {
       margin: 0;
-      color: #ffffff;
+      color: #333;
       font-weight: 500;
       font-size: 24px;
     }
 
     .header-text p {
       margin: 4px 0 0 0;
-      color: #cccccc;
+      color: #666;
       font-size: 14px;
     }
 
     /* Mock warning with gradient */
     .mock-warning-card {
       margin-bottom: 20px;
-      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-      border-left: 4px solid #ff9800;
-      box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+      background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+      border-left: 4px solid #ffc107;
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
     }
 
     .mock-warning {
@@ -149,13 +185,13 @@ import { MatBadgeModule } from '@angular/material/badge';
     }
 
     .warning-content strong {
-      color: #000000;
+      color: #856404;
       font-size: 16px;
     }
 
     .warning-content p {
       margin: 4px 0 0 0;
-      color: #000000;
+      color: #856404;
       font-size: 14px;
     }
 
@@ -163,23 +199,24 @@ import { MatBadgeModule } from '@angular/material/badge';
     .tweet-card.modern {
       margin-bottom: 20px;
       border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid #333333;
+      border: 1px solid #e0e0e0;
       overflow: hidden;
-      background-color: #2d2d2d;
     }
 
     .tweet-card.modern:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(255, 152, 0, 0.2);
-    }    /* Tweet header */
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Tweet header */
     .tweet-header {
       display: flex;
       align-items: center;
       padding: 16px 20px 12px;
-      background: linear-gradient(135deg, #333333 0%, #2d2d2d 100%);
-      border-bottom: 1px solid #444444;
+      background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+      border-bottom: 1px solid #e9ecef;
     }
 
     .user-avatar {
@@ -190,8 +227,8 @@ import { MatBadgeModule } from '@angular/material/badge';
       font-size: 40px;
       width: 40px;
       height: 40px;
-      color: #ff9800;
-      background: #1a1a1a;
+      color: #1976d2;
+      background: #e3f2fd;
       border-radius: 50%;
       padding: 8px;
     }
@@ -204,20 +241,20 @@ import { MatBadgeModule } from '@angular/material/badge';
       margin: 0;
       font-size: 16px;
       font-weight: 600;
-      color: #ffffff;
+      color: #333;
     }
 
     .user-handle {
       margin: 2px 0 0 0;
       font-size: 14px;
-      color: #cccccc;
+      color: #666;
     }
 
     .tweet-timestamp {
       display: flex;
       align-items: center;
       gap: 4px;
-      color: #ff9800;
+      color: #999;
       font-size: 12px;
     }
 
@@ -225,10 +262,11 @@ import { MatBadgeModule } from '@angular/material/badge';
       font-size: 14px;
       width: 14px;
       height: 14px;
-    }    /* Tweet content */
+    }
+
+    /* Tweet content */
     .tweet-content {
       padding: 20px !important;
-      background-color: #2d2d2d;
     }
 
     .tweet-text-container {
@@ -239,7 +277,7 @@ import { MatBadgeModule } from '@angular/material/badge';
       font-size: 16px;
       line-height: 1.6;
       margin: 0;
-      color: #ffffff;
+      color: #333;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
@@ -250,16 +288,90 @@ import { MatBadgeModule } from '@angular/material/badge';
     }
 
     .tweet-type-badge {
-      background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
-      color: #000000;
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      color: #1976d2;
       font-size: 12px;
-      font-weight: 500;    }
+      font-weight: 500;
+    }
+
+    /* Beautiful engagement metrics */
+    .engagement-metrics {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 12px 8px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .metric-item:hover {
+      transform: translateY(-1px);
+    }
+
+    .metric-item mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .metric-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+
+    .likes {
+      background: linear-gradient(135deg, #ffebee 0%, #fce4ec 100%);
+      color: #e91e63;
+    }
+
+    .retweets {
+      background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+      color: #4caf50;
+    }
+
+    .replies {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      color: #2196f3;
+    }
+
+    .quotes {
+      background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+      color: #ff9800;
+    }
+
+    .impressions {
+      background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+      color: #9c27b0;
+    }
 
     /* Tweet actions */
     .tweet-actions {
       padding: 12px 20px !important;
-      background: #1a1a1a;
-      border-top: 1px solid #333333;
+      background: #fafafa;
+      border-top: 1px solid #e0e0e0;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -269,20 +381,15 @@ import { MatBadgeModule } from '@angular/material/badge';
       font-size: 12px;
       padding: 6px 12px;
       border-radius: 20px;
-      border: 1px solid #ff9800;
-      color: #ff9800;
-    }
-
-    .action-btn:hover {
-      background-color: #ff9800;
-      color: #000000;
     }
 
     .spacer {
       flex: 1;
-    }    .detailed-date {
+    }
+
+    .detailed-date {
       font-size: 11px;
-      color: #cccccc;
+      color: #999;
     }
 
     /* Empty state */
@@ -291,12 +398,13 @@ import { MatBadgeModule } from '@angular/material/badge';
       justify-content: center;
       align-items: center;
       min-height: 300px;
-    }    .empty-card {
+    }
+
+    .empty-card {
       text-align: center;
       max-width: 400px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       border-radius: 16px;
-      background-color: #2d2d2d;
     }
 
     .empty-content {
@@ -307,21 +415,23 @@ import { MatBadgeModule } from '@angular/material/badge';
       font-size: 64px;
       width: 64px;
       height: 64px;
-      color: #ff9800;
+      color: #bbb;
       margin-bottom: 16px;
     }
 
     .empty-content h3 {
       margin: 0 0 8px 0;
-      color: #ffffff;
+      color: #666;
       font-weight: 500;
     }
 
     .empty-content p {
       margin: 0;
-      color: #cccccc;
+      color: #999;
       font-size: 14px;
-    }    /* Responsive design */
+    }
+
+    /* Responsive design */
     @media (max-width: 768px) {
       .tweets-container {
         padding: 12px;
@@ -333,6 +443,15 @@ import { MatBadgeModule } from '@angular/material/badge';
       
       .tweet-content {
         padding: 16px !important;
+      }
+      
+      .metrics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 8px;
+      }
+      
+      .metric-item {
+        padding: 8px 4px;
       }
     }
   `]
